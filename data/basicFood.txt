@@ -1,2 +1,6 @@
 Banana 89 big yellow pottasium
 Banana 89 big yellow pottasium
+bread 200 white milk sandwich
+meat 400 deli ham sliced
+lettuse 20 green leafy vegetable
+milk 1000 white calcium

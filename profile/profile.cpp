@@ -1,5 +1,10 @@
 #include "profile.h"
 #include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -14,7 +19,13 @@ void DietProfile::displayOptions() {
         
         int choice;
         cin >> choice;
-        cin.ignore();
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Try again.\n";
+            continue;
+        }
+        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         
         switch (choice) {
             case 1:
@@ -59,21 +70,100 @@ int DietProfile::calculateTargetCalories() const {
 }
 
 void DietProfile::updateProfile() {
-    cout << "Enter gender (male/female): ";
-    getline(cin, gender);
+    while (true) {
+        cout << "Select gender:\n";
+        cout << "1. Male\n";
+        cout << "2. Female\n";
+        cout << "Enter choice: ";
+        int genderChoice;
+        cin >> genderChoice;
 
-    cout << "Enter age: ";
-    cin >> age;
+        if (cin.fail() || (genderChoice != 1 && genderChoice != 2)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter 1 for Male or 2 for Female.\n";
+            continue;
+        }
 
-    cout << "Enter height (cm): ";
-    cin >> height;
+        gender = (genderChoice == 1) ? "male" : "female";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        break;
+    }
 
-    cout << "Enter weight (kg): ";
-    cin >> weight;
-    cin.ignore();
+    while (true) {
+        cout << "Enter age: ";
+        cin >> age;
 
-    cout << "Enter activity level (sedentary/light/moderate/active/very active): ";
-    getline(cin, activityLevel);
+        if (cin.fail() || age <= 0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a valid age.\n";
+            continue;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        break;
+    }
+
+    while (true) {
+        cout << "Enter height (cm): ";
+        cin >> height;
+
+        if (cin.fail() || height <= 0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a valid height.\n";
+            continue;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        break;
+    }
+
+    while (true) {
+        cout << "Enter weight (kg): ";
+        cin >> weight;
+
+        if (cin.fail() || weight <= 0) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a valid weight.\n";
+            continue;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        break;
+    }
+
+    while (true) {
+        cout << "Select activity level:\n";
+        cout << "1. Sedentary\n";
+        cout << "2. Light\n";
+        cout << "3. Moderate\n";
+        cout << "4. Active\n";
+        cout << "5. Very Active\n";
+        cout << "Enter choice: ";
+        int activityChoice;
+        cin >> activityChoice;
+
+        if (cin.fail() || activityChoice < 1 || activityChoice > 5) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please select a valid activity level (1-5).\n";
+            continue;
+        }
+
+        switch (activityChoice) {
+            case 1: activityLevel = "sedentary"; break;
+            case 2: activityLevel = "light"; break;
+            case 3: activityLevel = "moderate"; break;
+            case 4: activityLevel = "active"; break;
+            case 5: activityLevel = "very active"; break;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        break;
+    }
 
     cout << "Profile updated.\n";
 }
