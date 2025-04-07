@@ -2,7 +2,7 @@
 #define LOG_H
 
 #include <bits/stdc++.h>
-#include "food.h"
+#include "../food/food.h"
 using namespace std;
 
 struct LogEntry {
