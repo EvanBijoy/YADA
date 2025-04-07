@@ -5,27 +5,12 @@
 #include <map>
 #include <string>
 #include <optional>
-#include "../json.hpp"
 #include "food.h"
 #include "food_database.h"
 
 struct LogEntry {
     std::string foodId;
     int servings;
-    
-    nlohmann::json toJson() const {
-        return {
-            {"foodId", foodId},
-            {"servings", servings}
-        };
-    }
-
-    static LogEntry fromJson(const nlohmann::json& j) {
-        return {
-            j.at("foodId").get<std::string>(),
-            j.at("servings").get<int>()
-        };
-    }
 };
 
 class DailyLog {

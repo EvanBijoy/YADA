@@ -15,6 +15,7 @@ public:
 
     void addBasicFood(const Food& food);
     void addCompositeFood(const CompositeFood& food);
+    void removeFood(const std::string& identifier);
 
     std::optional<Food> findFood(const std::string& identifier) const;
     std::vector<Food> searchFoodByKeywords(const std::vector<std::string>& keywords, bool matchAll) const;

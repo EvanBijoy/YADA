@@ -82,6 +82,11 @@ void FoodDatabase::addCompositeFood(const CompositeFood& food) {
     m_compositeFoods[food.getIdentifier()] = food;
 }
 
+void FoodDatabase::removeFood(const std::string& identifier) {
+    m_basicFoods.erase(identifier);
+    m_compositeFoods.erase(identifier);
+}
+
 std::optional<Food> FoodDatabase::findFood(const std::string& identifier) const {
     auto basicIt = m_basicFoods.find(identifier);
     if (basicIt != m_basicFoods.end()) {

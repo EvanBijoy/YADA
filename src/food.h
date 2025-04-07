@@ -15,6 +15,8 @@ public:
     Food() = default;
     Food(const std::string& identifier, const std::vector<std::string>& keywords, double calories, Type type);
 
+    virtual ~Food() = default;
+
     // Getters
     std::string getIdentifier() const;
     std::vector<std::string> getKeywords() const;

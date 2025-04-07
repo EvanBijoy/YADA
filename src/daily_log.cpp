@@ -2,6 +2,7 @@
 #include <fstream>
 #include <regex>
 #include <iostream>
+#include <sstream>
 
 DailyLog::DailyLog() {
     loadLogs();
@@ -16,17 +17,36 @@ void DailyLog::validateDateFormat(const std::string& date) const {
 
 void DailyLog::loadLogs() {
     try {
-        std::ifstream logsFile("data/daily_logs.json");
+        std::ifstream logsFile("data/daily_logs.txt");
         if (logsFile.is_open()) {
-            nlohmann::json logsJson;
-            logsFile >> logsJson;
-
-            for (const auto& [date, entries] : logsJson.items()) {
-                std::vector<LogEntry> dateEntries;
-                for (const auto& entryJson : entries) {
-                    dateEntries.push_back(LogEntry::fromJson(entryJson));
+            std::string line;
+            std::string currentDate;
+            
+            while (std::getline(logsFile, line)) {
+                if (line.empty()) continue;
+                
+                // Check if line is a date header (format: [YYYY-MM-DD])
+                if (line.front() == '[' && line.back() == ']') {
+                    currentDate = line.substr(1, line.size() - 2);
+                    validateDateFormat(currentDate);
+                } 
+                else {
+                    // Parse food entry (format: foodId,servings)
+                    std::istringstream iss(line);
+                    std::string foodId;
+                    std::string servingsStr;
+                    
+                    if (std::getline(iss, foodId, ',') && std::getline(iss, servingsStr)) {
+                        try {
+                            int servings = std::stoi(servingsStr);
+                            m_dailyLogs[currentDate].emplace_back(LogEntry{foodId, servings});
+                        } 
+                        catch (const std::exception& e) {
+                            std::cerr << "Error parsing servings for food " << foodId 
+                                      << ": " << e.what() << std::endl;
+                        }
+                    }
                 }
-                m_dailyLogs[date] = dateEntries;
             }
         }
     } catch (const std::exception& e) {
@@ -35,25 +55,25 @@ void DailyLog::loadLogs() {
 }
 
 void DailyLog::saveLogs() {
-    nlohmann::json logsJson;
-
+    std::ofstream logsFile("data/daily_logs.txt");
+    
     for (const auto& [date, entries] : m_dailyLogs) {
-        nlohmann::json dateEntries = nlohmann::json::array();
+        // Write date header
+        logsFile << "[" << date << "]\n";
+        
+        // Write all entries for this date
         for (const auto& entry : entries) {
-            dateEntries.push_back(entry.toJson());
+            logsFile << entry.foodId << "," << entry.servings << "\n";
         }
-        logsJson[date] = dateEntries;
+        
+        // Add empty line between dates for readability
+        logsFile << "\n";
     }
-
-    std::ofstream logsFile("data/daily_logs.json");
-    logsFile << logsJson.dump(4);
 }
 
 void DailyLog::addFoodToLog(const std::string& date, const std::string& foodId, int servings) {
     validateDateFormat(date);
-
-    LogEntry newEntry{foodId, servings};
-    m_dailyLogs[date].push_back(newEntry);
+    m_dailyLogs[date].emplace_back(LogEntry{foodId, servings});
 }
 
 void DailyLog::removeFoodFromLog(const std::string& date, const std::string& foodId) {
