@@ -29,12 +29,7 @@ void DietProfile::displayOptions() {
         
         switch (choice) {
             case 1:
-                cout << "\nCurrent Profile:\n";
-                cout << "Gender: " << (gender.empty() ? "Not set" : gender) << "\n";
-                cout << "Age: " << age << "\n";
-                cout << "Height: " << height << " cm\n";
-                cout << "Weight: " << weight << " kg\n";
-                cout << "Activity Level: " << activityLevel << "\n";
+                viewProfile();
                 break;
             case 2:
                 updateProfile();
@@ -51,16 +46,49 @@ void DietProfile::displayOptions() {
 }
 
 int DietProfile::calculateTargetCalories() const {
-    // Harris-Benedict equation
-    double bmr;
-    if (gender == "male") {
-        bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
-    } else {
-        bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+    cout << "\nSelect Calorie Calculation Method:\n";
+    cout << "1. Harris-Benedict Equation\n";
+    cout << "2. Mifflin-St Jeor Equation\n";
+    cout << "3. Katch-McArdle Equation (assumes 20% body fat)\n";
+    cout << "Enter choice: ";
+
+    int method;
+    cin >> method;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    double bmr = 0.0;
+
+    switch (method) {
+        case 1:
+            if (gender == "male") {
+                bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+            } else {
+                bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+            }
+            break;
+        case 2:
+            if (gender == "male") {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+            break;
+        case 3:
+            {
+                double leanMass = weight * 0.8;
+                bmr = 370 + (21.6 * leanMass);
+            }
+            break;
+        default:
+            cout << "Invalid choice. Using Harris-Benedict as default.\n";
+            if (gender == "male") {
+                bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+            } else {
+                bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+            }
     }
 
-    // Activity multiplier
-    double activityMultiplier = 1.2; // Sedentary default
+    double activityMultiplier = 1.2;
     if (activityLevel == "light") activityMultiplier = 1.375;
     else if (activityLevel == "moderate") activityMultiplier = 1.55;
     else if (activityLevel == "active") activityMultiplier = 1.725;
@@ -68,6 +96,7 @@ int DietProfile::calculateTargetCalories() const {
 
     return static_cast<int>(bmr * activityMultiplier);
 }
+
 
 void DietProfile::updateProfile() {
     while (true) {
@@ -165,5 +194,37 @@ void DietProfile::updateProfile() {
         break;
     }
 
+    ofstream outFile(profileFile, ios::trunc); // Open file in truncate mode to overwrite
+    if (!outFile) {
+        cerr << "Error opening file for writing: " << profileFile << endl;
+        return;
+    }
+    
+    outFile << "Gender: " << gender << "\n";
+    outFile << "Age: " << age << "\n";
+    outFile << "Height: " << height << "\n";
+    outFile << "Weight: " << weight << "\n";
+    outFile << "Activity Level: " << activityLevel << "\n";
+    
+    outFile.close();
+
     cout << "Profile updated.\n";
+}
+
+void DietProfile::viewProfile() {
+    ifstream inFile(profileFile);
+    if (!inFile || inFile.peek() == ifstream::traits_type::eof()) {
+        cout << "No profile found. Redirecting to update profile...\n";
+        inFile.close();
+        updateProfile();
+        return;
+    }
+    
+    cout << "\nCurrent Profile:\n";
+    string line;
+    while (getline(inFile, line)) {
+        cout << line << "\n";
+    }
+    
+    inFile.close();
 }

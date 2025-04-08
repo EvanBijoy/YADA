@@ -1,7 +1,8 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include <string>
+#include <bits/stdc++.h>
+using namespace std;
 
 class DietProfile {
 public:
@@ -9,13 +10,15 @@ public:
     int calculateTargetCalories() const;
 
 private:
-    std::string gender;
+    string gender;
     int age = 0;
     double height = 0.0;
     double weight = 0.0;
-    std::string activityLevel;
+    string activityLevel;
+    string profileFile = "data/profile.txt";
 
     void updateProfile();
+    void viewProfile();
 };
 
 #endif
