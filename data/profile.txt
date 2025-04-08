@@ -1,5 +1,0 @@
-Gender: female
-Age: 2
-Height: 2
-Weight: 2
-Activity Level: light

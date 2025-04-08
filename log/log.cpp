@@ -13,7 +13,8 @@ void LogManager::displayOptions(const FoodList& foodList) {
         cout << "3. View log for specific date\n";
         cout << "4. Delete entry\n";
         cout << "5. Undo\n";
-        cout << "6. Return to main menu\n";
+        cout << "6. Save Log\n";
+        cout << "7. Return to main menu\n";
         cout << "Enter choice: ";
         
         int choice;
@@ -50,7 +51,8 @@ void LogManager::displayOptions(const FoodList& foodList) {
                 if (foodChoice > 0 && foodChoice <= static_cast<int>(foods.size())) {
                     addEntry(foods[foodChoice-1].name, servings, foods[foodChoice-1].calories);
                     cout << "Entry added.\n";
-                } else {
+                }
+                else {
                     cout << "Invalid selection.\n";
                 }
                 break;
@@ -61,17 +63,26 @@ void LogManager::displayOptions(const FoodList& foodList) {
             case 3: {
                 cout << "Enter date (YYYY-MM-DD): ";
                 string dateStr;
-                getline(cin, dateStr);
-                
+                cin >> dateStr;
+            
                 tm tm = {};
                 istringstream iss(dateStr);
                 iss >> get_time(&tm, "%Y-%m-%d");
-                if (iss.fail()) {
-                    cout << "Invalid date format.\n";
-                } else {
-                    time_t date = mktime(&tm);
-                    viewLog(date);
+            
+                if (iss.fail() || !iss.eof()) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Invalid date format. Please use YYYY-MM-DD.\n";
+                    continue;
                 }
+            
+                time_t date = mktime(&tm);
+                if (date == -1) {
+                    cout << "Invalid date.\n";
+                    continue;
+                }
+            
+                viewLog(date);
                 break;
             }
             case 4: {
@@ -95,6 +106,10 @@ void LogManager::displayOptions(const FoodList& foodList) {
                 undo();
                 break;
             case 6:
+                saveToFile("data/log.txt");
+                cout << "Log saved successfully.\n";
+                break;
+            case 7:
                 return;
             default:
                 cout << "Invalid choice. Try again.\n";
@@ -126,7 +141,8 @@ void LogManager::undo() {
         entries = undoStack.back();
         undoStack.pop_back();
         cout << "Undo successful.\n";
-    } else {
+    } 
+    else {
         cout << "Nothing to undo.\n";
     }
 }
@@ -143,34 +159,41 @@ void LogManager::viewLog(time_t date) const {
     if (date == 0) {
         date = time(nullptr);
     }
-    
+
+    tm* searchTime = localtime(&date);
+    searchTime->tm_hour = 0;
+    searchTime->tm_min = 0;
+    searchTime->tm_sec = 0;
+    time_t normalizedDate = mktime(searchTime);
+
     cout << "\nFood Log:\n";
     bool found = false;
     int totalCalories = 0;
-    
+
     char buffer[80];
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d", localtime(&date));
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d", localtime(&normalizedDate));
     cout << "Date: " << buffer << "\n\n";
-    
+
     for (size_t i = 0; i < entries.size(); ++i) {
         tm* entryTime = localtime(&entries[i].date);
-        tm* searchTime = localtime(&date);
-        
-        if (entryTime->tm_year == searchTime->tm_year &&
-            entryTime->tm_mon == searchTime->tm_mon &&
-            entryTime->tm_mday == searchTime->tm_mday) {
-            
-            cout << i+1 << ". " << entries[i].foodName 
-                 << " - Servings: " << entries[i].servings 
+        entryTime->tm_hour = 0;
+        entryTime->tm_min = 0;
+        entryTime->tm_sec = 0;
+        time_t normalizedEntryDate = mktime(entryTime);
+
+        if (normalizedEntryDate == normalizedDate) {
+            cout << i + 1 << ". " << entries[i].foodName
+                 << " - Servings: " << entries[i].servings
                  << ", Calories: " << entries[i].calories << "\n";
             totalCalories += entries[i].calories;
             found = true;
         }
     }
-    
+
     if (!found) {
         cout << "No entries for this date.\n";
-    } else {
+    }
+    else {
         cout << "\nTotal calories: " << totalCalories << "\n";
     }
 }
