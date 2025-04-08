@@ -34,3 +34,8 @@ To compile and run the program, use the following command:
 ```
 g++ main.cpp food/food.cpp log/log.cpp profile/profile.cpp -Ifood -Ilog -Iprofile -std=c++17 -o yada
 ```
+
+Then run
+```
+./yada
+```
