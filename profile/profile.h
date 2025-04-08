@@ -8,6 +8,7 @@ class DietProfile {
 public:
     void displayOptions();
     int calculateTargetCalories() const;
+    void loadFromFile();
 
 private:
     string gender;
@@ -16,7 +17,6 @@ private:
     double weight = 0.0;
     string activityLevel;
     string profileFile = "data/profile.txt";
-
     void updateProfile();
     void viewProfile();
 };

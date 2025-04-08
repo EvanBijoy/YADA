@@ -19,12 +19,13 @@ public:
     void deleteEntry(int index);
     void undo();
     void saveToFile(const string& filename);
-    void loadFromFile(const string& filename);
+    void loadFromFile();
     void viewLog(time_t date = 0) const;
     int getTotalCalories(time_t date) const;
     
 private:
     vector<LogEntry> entries;
+    string logFile = "data/log.txt";
     vector<vector<LogEntry>> undoStack;
     void saveState();
 };

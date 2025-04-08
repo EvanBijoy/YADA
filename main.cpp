@@ -16,7 +16,8 @@ int main() {
     
     // Load data
     foodList.loadFromFiles();
-    logManager.loadFromFile("data/log.txt");
+    logManager.loadFromFile();
+    profile.loadFromFile();
     
     while (true) {
         cout << "\nMain Menu:\n";

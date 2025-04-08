@@ -228,3 +228,41 @@ void DietProfile::viewProfile() {
     
     inFile.close();
 }
+
+void DietProfile::loadFromFile() {
+    ifstream inFile(profileFile);
+    
+    if (!inFile || inFile.peek() == ifstream::traits_type::eof()) {
+        inFile.close();
+        cout << "No profile found. Please create a new profile.\n";
+        updateProfile();
+        return;
+    }
+
+    string line;
+    while (getline(inFile, line)) {
+        istringstream iss(line);
+        string key;
+        if (getline(iss, key, ':')) {
+            string value;
+            getline(iss, value);
+            
+            value.erase(0, value.find_first_not_of(" \t"));
+
+            if (key == "Gender") {
+                gender = value;
+            } else if (key == "Age") {
+                age = stoi(value);
+            } else if (key == "Height") {
+                height = stod(value);
+            } else if (key == "Weight") {
+                weight = stod(value);
+            } else if (key == "Activity Level") {
+                activityLevel = value;
+            }
+        }
+    }
+
+    inFile.close();
+    cout << "Profile loaded successfully.\n";
+}

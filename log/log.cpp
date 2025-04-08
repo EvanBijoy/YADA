@@ -228,7 +228,8 @@ void LogManager::saveToFile(const string& filename) {
     outFile.close();
 }
 
-void LogManager::loadFromFile(const string& filename) {
+void LogManager::loadFromFile() {
+    string filename = logFile;
     ifstream inFile(filename);
     if (!inFile) {
         cerr << "File not found, starting with empty log: " << filename << endl;

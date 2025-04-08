@@ -1,0 +1,5 @@
+Gender: male
+Age: 21
+Height: 181
+Weight: 60
+Activity Level: moderate
